@@ -1,23 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
 
 function App() {
+  const [todos, setTodos] = useState([]);
+  const [task, setTask] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTodo, setCurrentTodo] = useState(null);
+
+  const addTodo = (e) => {
+    e.preventDefault();
+    if (!task) return alert("Please Enter a Task");
+    setTodos([...todos, { id: Date.now(), task }]);
+    setTask("");
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const startEditing = (todo) => {
+    setIsEditing(true);
+    setCurrentTodo(todo);
+    setTask(todo.task);
+  };
+
+  const editTodo = (e) => {
+    e.preventDefault();
+    setTodos(
+      todos.map((todo) =>
+        todo.id === currentTodo.id ? { ...todo, task } : todo
+      )
+    );
+    setIsEditing(false);
+    setTask("");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="todos">
+      <h1>TO-DOs</h1>
+      <form onSubmit={isEditing ? editTodo : addTodo}>
+        <input
+          type="text"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+        />
+        <button type="submit">{isEditing ? "Update Todo" : "Add Todo"}</button>
+      </form>
+      <ol className="todosUl">
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <div className="liValue">{todo.task}</div>
+            <button className="edit" onClick={() => startEditing(todo)}>Edit</button>
+            <button className="del" onClick={() => deleteTodo(todo.id)}>Delete</button>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
